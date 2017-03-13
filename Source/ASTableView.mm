@@ -562,7 +562,7 @@ static NSString * const kCellReuseIdentifier = @"_ASTableViewCell";
     return indexPath;
   } else {
     NSIndexPath *viewIndexPath = [_dataController.visibleMap convertIndexPath:indexPath fromMap:_dataController.pendingMap];
-    if (viewIndexPath == nil) {
+    if (viewIndexPath == nil && wait) {
       [self waitUntilAllUpdatesAreCommitted];
       return [self convertIndexPathFromTableNode:indexPath waitingIfNeeded:NO];
     }
@@ -649,18 +649,8 @@ static NSString * const kCellReuseIdentifier = @"_ASTableViewCell";
 
 - (NSArray<ASCellNode *> *)visibleNodes
 {
-  NSArray *indexPaths = [self visibleNodeIndexPathsForRangeController:_rangeController];
-  
-  NSMutableArray<ASCellNode *> *visibleNodes = [NSMutableArray array];
-  for (NSIndexPath *indexPath in indexPaths) {
-    ASCellNode *node = [self nodeForRowAtIndexPath:indexPath];
-    if (node) {
-      // It is possible for UITableView to return indexPaths before the node is completed.
-      [visibleNodes addObject:node];
-    }
-  }
-  
-  return visibleNodes;
+  NSArray<ASCollectionElement *> *elements = [self visibleElementsForRangeController:_rangeController];
+  return ASArrayByFlatMapping(elements, ASCollectionElement *e, e.node);
 }
 
 - (void)beginUpdates
@@ -1358,7 +1348,7 @@ static NSString * const kCellReuseIdentifier = @"_ASTableViewCell";
     return _rangeController;
 }
 
-- (NSArray *)visibleNodeIndexPathsForRangeController:(ASRangeController *)rangeController
+- (NSArray<ASCollectionElement *> *)visibleElementsForRangeController:(ASRangeController *)rangeController
 {
   ASDisplayNodeAssertMainThread();
   
@@ -1383,7 +1373,8 @@ static NSString * const kCellReuseIdentifier = @"_ASTableViewCell";
     }]];
   }
 
-  return visibleIndexPaths;
+  ASElementMap *map = _dataController.visibleMap;
+  return ASArrayByFlatMapping(visibleIndexPaths, NSIndexPath *indexPath, [map elementForItemAtIndexPath:indexPath]);
 }
 
 - (ASScrollDirection)scrollDirectionForRangeController:(ASRangeController *)rangeController

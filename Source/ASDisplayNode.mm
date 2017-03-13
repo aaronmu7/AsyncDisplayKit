@@ -330,8 +330,9 @@ static ASDisplayNodeMethodOverrides GetASDisplayNodeMethodOverrides(Class c)
 
 - (instancetype)initWithLayerClass:(Class)layerClass
 {
-  if (!(self = [super init]))
+  if (!(self = [super init])) {
     return nil;
+  }
 
   ASDisplayNodeAssert([layerClass isSubclassOfClass:[CALayer class]], @"should initialize with a subclass of CALayer");
 
@@ -345,13 +346,18 @@ static ASDisplayNodeMethodOverrides GetASDisplayNodeMethodOverrides(Class c)
 
 - (instancetype)initWithViewBlock:(ASDisplayNodeViewBlock)viewBlock
 {
-  return [self initWithViewBlock:viewBlock didLoadBlock:nil];
+  return [self _initWithViewBlock:viewBlock didLoadBlock:nil];
 }
-
 - (instancetype)initWithViewBlock:(ASDisplayNodeViewBlock)viewBlock didLoadBlock:(ASDisplayNodeDidLoadBlock)didLoadBlock
 {
-  if (!(self = [super init]))
+  return [self _initWithViewBlock:viewBlock didLoadBlock:didLoadBlock];
+}
+
+- (instancetype)_initWithViewBlock:(ASDisplayNodeViewBlock)viewBlock didLoadBlock:(ASDisplayNodeDidLoadBlock)didLoadBlock
+{
+  if (!(self = [super init])) {
     return nil;
+  }
   
   ASDisplayNodeAssertNotNil(viewBlock, @"should initialize with a valid block that returns a UIView");
   
@@ -367,13 +373,19 @@ static ASDisplayNodeMethodOverrides GetASDisplayNodeMethodOverrides(Class c)
 
 - (instancetype)initWithLayerBlock:(ASDisplayNodeLayerBlock)layerBlock
 {
-  return [self initWithLayerBlock:layerBlock didLoadBlock:nil];
+  return [self _initWithLayerBlock:layerBlock didLoadBlock:nil];
 }
 
 - (instancetype)initWithLayerBlock:(ASDisplayNodeLayerBlock)layerBlock didLoadBlock:(ASDisplayNodeDidLoadBlock)didLoadBlock
 {
-  if (!(self = [super init]))
+  return [self _initWithLayerBlock:layerBlock didLoadBlock:didLoadBlock];
+}
+
+- (instancetype)_initWithLayerBlock:(ASDisplayNodeLayerBlock)layerBlock didLoadBlock:(ASDisplayNodeDidLoadBlock)didLoadBlock
+{
+  if (!(self = [super init])) {
     return nil;
+  }
   
   ASDisplayNodeAssertNotNil(layerBlock, @"should initialize with a valid block that returns a CALayer");
   
@@ -2300,7 +2312,7 @@ static const char *ASDisplayNodeDrawingPriorityKey = "ASDrawingPriority";
   }
 
   ASDisplayNodeAssert(_flags.layerBacked, @"We shouldn't get called back here unless we are layer-backed.");
-  return nil;
+  return (id)kCFNull;
 }
 
 #pragma mark - Error Handling
